@@ -1,10 +1,12 @@
 import time
 import requests
 from parsel import Selector
+from tech_news.database import create_news
 
 
 # Requisito 1
 def fetch(url):
+    """Realiza a requisição para devolver o html do link"""
     try:
         time.sleep(1)
         response = requests.get(url, timeout=3)
@@ -17,7 +19,7 @@ def fetch(url):
 
 # Requisito 2
 def scrape_novidades(html_content):
-    """Scrap do link de acesso da noticia"""
+    """Scrap -> retorna o todos os link de acesso de noticias daquela página"""
     selector = Selector(html_content)
     if selector is None:
         return []
@@ -27,7 +29,7 @@ def scrape_novidades(html_content):
 
 # Requisito 3
 def scrape_next_page_link(html_content):
-    """Scrap do botao da proxima pagina"""
+    """Scrap -> devolve o link para a proxima pagina se houver próxima"""
     selector = Selector(html_content)
     nextPage = selector.css('.tec--list__item ~ a::attr(href)').get()
     if nextPage is None:
@@ -37,14 +39,14 @@ def scrape_next_page_link(html_content):
 
 # Requisito 4
 def scrape_noticia(html_content):
+    """Raspagem de dados de uma Notícia em si"""
     url = "head link[rel=canonical]::attr(href)"
     title = ".tec--article__header__title::text"
     writer = ".tec--author div p a::text"
     timestamp = 'time::attr(datetime)'
     shares_count = ".tec--toolbar__item::text"
     comments_count = "#js-comments-btn::attr(data-count)"
-
-    summary = ".tec--article__body p:first-child *::text"
+    summary = ".tec--article__body > p:first-child *::text"
 
     sources = ".z--mb-16 h2 ~ div a::text"
     categories = "#js-categories a::text"
@@ -92,7 +94,28 @@ def scrape_noticia(html_content):
     return news_abstraction
 
 
-
 # Requisito 5
 def get_tech_news(amount):
-    """Seu código deve vir aqui"""
+    """Buscar as N noticias"""
+    # criar um array com todos os links necessários para scrap
+    # criar um array que quarda os links -> se o amount é maior que a pagina
+    # -> raspar pegar todos os links dessa pagina e ir para o proximo, ate qu
+    # acabe o amount
+    # Para depois percorrer todos os links trazendo e salvando o post no mong
+    scrape_next_page_link
+    scrape_noticia
+    scrape_novidades
+    posts = []
+    base_url = "https://www.tecmundo.com.br/novidades"
+
+    while(len(posts) < amount):
+        html = fetch(base_url)
+        posts.extend(scrape_novidades(html))
+        base_url = scrape_next_page_link(html)
+
+    scrap_news = [scrape_noticia(fetch(posts[numero]))
+                  for numero in range(amount)]
+    print(scrap_news)
+
+    create_news(scrap_news)
+    return scrap_news
