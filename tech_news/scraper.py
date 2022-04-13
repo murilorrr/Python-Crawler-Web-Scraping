@@ -102,9 +102,6 @@ def get_tech_news(amount):
     # -> raspar pegar todos os links dessa pagina e ir para o proximo, ate qu
     # acabe o amount
     # Para depois percorrer todos os links trazendo e salvando o post no mong
-    scrape_next_page_link
-    scrape_noticia
-    scrape_novidades
     posts = []
     base_url = "https://www.tecmundo.com.br/novidades"
 
@@ -115,7 +112,6 @@ def get_tech_news(amount):
 
     scrap_news = [scrape_noticia(fetch(posts[numero]))
                   for numero in range(amount)]
-    print(scrap_news)
 
     create_news(scrap_news)
     return scrap_news
